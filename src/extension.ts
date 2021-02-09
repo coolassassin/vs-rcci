@@ -1,27 +1,63 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import { resolve } from 'dns';
 import * as vscode from 'vscode';
+import { checkPackageAndConfig, getConfig, applyTemplate } from './helpers';
+import { MultiTemplate, Config, TemplateDescription } from './types';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+const selectTemplate = async (config: Config): Promise<string | null> => {
+	return new Promise(resolve => {
+		const templateSelection = vscode.window.createQuickPick();
+		templateSelection.items = (config.templates as MultiTemplate).map(tmp => ({ label: tmp.name }))
+		templateSelection.onDidChangeSelection(items => {
+			const selectedTemplate = items[0].label;
+			resolve(selectedTemplate);
+			templateSelection.hide();
+		})
+		templateSelection.onDidHide(() => {
+			resolve(null);
+		})
+		templateSelection.show();
+	})
+}
+
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vs-rcci" is now active!');
+	let disposable = vscode.commands.registerCommand('vs-rcci.create', async event => {
+		try {
+			if (checkPackageAndConfig()) {
+				const config = await getConfig();
+				if (Array.isArray(config.templates)) {
+					const selectedTemplate = await selectTemplate(config);
+					if (!selectedTemplate) {
+						return;
+					}
+					applyTemplate(config, selectedTemplate);
+				}
+				// const componentName = vscode.window.createInputBox();
+				// componentName.placeholder = 'Enter component name or names divided by space';
+				// componentName.show();
+				// componentName.onDidAccept(() => {
+				// 	componentName.hide();
+				// 	// vscode.window.showInformationMessage(componentName.value);
+				// 	const terminal = vscode.window.createTerminal('React create component terminal');
+				// 	terminal.sendText(`npx rcci --dest "${event.fsPath}" --skip-search --name "${componentName.value}"`);
+				// 	terminal.show();
+				// })
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vs-rcci.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vs-rcci!');
+				const files = Object.entries(config.templates)
+					.filter(([_, o]) => o.optional)
+					.map(([name, options]: [string, TemplateDescription]) => ({
+						label: name,
+						picked: options.default ?? true
+					}));
+				const items = (await vscode.window.showQuickPick(files, {canPickMany: true})) ?? [];
+				console.log(items.map(item => item.label));
+			}
+		} catch (e) {
+			console.error(e);
+		}
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

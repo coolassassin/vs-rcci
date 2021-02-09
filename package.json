@@ -10,16 +10,31 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:vs-rcci.helloWorld"
+        "onCommand:vs-rcci.create"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "vs-rcci.helloWorld",
-				"title": "Hello World"
+				"command": "vs-rcci.create",
+				"title": "Create component"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "vs-rcci.create",
+					"group": "reactcci"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "vs-rcci.create",
+					"when": "false"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run package",
