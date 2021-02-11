@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Config } from './types';
+import { Config, MultiTemplate } from './types';
 
 export const getRoot = () => {
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -60,4 +60,39 @@ export const getConfig = async (): Promise<Config> => {
         applyTemplate(config, config.templates[0].name);
     }
     return config;
+}
+
+export const selectTemplate = (config: Config): Promise<string | null> => {
+	return new Promise(resolve => {
+		const templateSelection = vscode.window.createQuickPick();
+		templateSelection.items = (config.templates as MultiTemplate).map(tmp => ({ label: tmp.name }))
+		templateSelection.onDidChangeSelection(items => {
+			const selectedTemplate = items[0].label;
+			resolve(selectedTemplate);
+			templateSelection.hide();
+		})
+		templateSelection.onDidHide(() => {
+			resolve(null);
+		})
+		templateSelection.show();
+	})
+}
+
+export const selectComponentName = (): Promise<string | null> => {
+	return new Promise(resolve => {
+		const componentName = vscode.window.createInputBox();
+		componentName.placeholder = 'Enter component name or names divided by space';
+		componentName.show();
+		componentName.onDidAccept(() => {
+			if (componentName.value) {
+				componentName.hide();
+				resolve(componentName.value);
+			} else {
+				vscode.window.showErrorMessage("Component name can't be empty");
+			}
+		})
+		componentName.onDidHide(() => {
+			resolve(null);
+		})
+	})
 }
