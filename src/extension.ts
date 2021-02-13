@@ -1,42 +1,61 @@
 import * as vscode from 'vscode';
-import { checkPackageAndConfig, getConfig, applyTemplate, selectComponentName, selectTemplate } from './helpers';
-import { TemplateDescription } from './types';
+import { checkPackageAndConfig, getConfig, selectComponentName, selectFiles, createCommand } from './helpers';
+import { runInTerminal } from './terminal';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	let disposable = vscode.commands.registerCommand('vs-rcci.create', async event => {
+	let create = vscode.commands.registerCommand('vs-rcci.create', async event => {
 		if (checkPackageAndConfig()) {
-			const config = await getConfig();
-			if (Array.isArray(config.templates)) {
-				const selectedTemplate = await selectTemplate(config);
-				if (!selectedTemplate) {
-					return;
-				}
-				applyTemplate(config, selectedTemplate);
+			const { config, template } = (await getConfig()) ?? {};
+			if (!config) {
+				return;
 			}
 
-			const files = Object.entries(config.templates)
-				.filter(([_, o]) => o.optional)
-				.map(([name, options]: [string, TemplateDescription]) => ({
-					label: name,
-					picked: options.default ?? true
-				}));
-			const items = (await vscode.window.showQuickPick(files, { canPickMany: true })) ?? [];
-			const filesToCreate = items.length === 0 ? 'no' : items.map(item => item.label).join(' ');
-
 			const componentName = await selectComponentName();
-
 			if (!componentName) {
 				return;
 			}
 
-			const terminal = vscode.window.createTerminal('reactcci terminal');
-			terminal.sendText(`npx rcci --dest "${event.fsPath}" --skip-search --name "${componentName}" --files ${filesToCreate} --sls`);
-			terminal.show();
+			const filesToCreate = await selectFiles(config);
+			if (!filesToCreate) {
+				return;
+			}
+
+			runInTerminal(createCommand({
+				dest: event.fsPath,
+				name: componentName,
+				type: template,
+				files: filesToCreate,
+				noSearch: true,
+				skipLastStep: true
+			}));
 		}
 	});
 
-	context.subscriptions.push(disposable);
+	let update = vscode.commands.registerCommand('vs-rcci.update', async event => {
+		if (checkPackageAndConfig()) {
+			const { config, template } = await getConfig() ?? {};
+			if (!config) {
+				return;
+			}
+
+			const filesToCreate = await selectFiles(config, true);
+			if (!filesToCreate || filesToCreate === 'no') {
+				return;
+			}
+
+			runInTerminal(createCommand({
+				dest: event.fsPath,
+				type: template,
+				files: filesToCreate,
+				update: true,
+				noSearch: true,
+				skipLastStep: true
+			}));
+		}
+	});
+
+	context.subscriptions.push(create, update);
 }
 
 export function deactivate() { }

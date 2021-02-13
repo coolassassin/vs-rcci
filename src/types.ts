@@ -34,4 +34,4 @@ export type Config = {
     afterCreation?: {
         [key in string]: AfterCreationCommand;
     };
-}
+};

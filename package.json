@@ -10,7 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:vs-rcci.create"
+        "onCommand:vs-rcci.create",
+        "onCommand:vs-rcci.update"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -18,6 +19,10 @@
 			{
 				"command": "vs-rcci.create",
 				"title": "Create component"
+			},
+			{
+				"command": "vs-rcci.update",
+				"title": "Update component"
 			}
 		],
 		"menus": {
@@ -26,11 +31,20 @@
 					"when": "explorerResourceIsFolder",
 					"command": "vs-rcci.create",
 					"group": "reactcci"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "vs-rcci.update",
+					"group": "reactcci"
 				}
 			],
 			"commandPalette": [
 				{
 					"command": "vs-rcci.create",
+					"when": "false"
+				},
+				{
+					"command": "vs-rcci.update",
 					"when": "false"
 				}
 			]
