@@ -1,8 +1,10 @@
 {
   "name": "vs-rcci",
-	"displayName": "vs-rcci",
-	"description": "reactcci Create React component interaclive CLI integration plugin",
-	"version": "0.0.1",
+	"displayName": "React component tool",
+	"description": "⚛️⭐ Interactive and customizable tool to create and update react component",
+	"publisher": "KamenskikhDmitriy",
+	"repository": "https://github.com/coolassassin/vs-rcci",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
@@ -76,5 +78,21 @@
 		"ts-loader": "^8.0.14",
 		"webpack": "^5.19.0",
 		"webpack-cli": "^4.4.0"
-	}
+	},
+	"keywords": [
+        "react",
+        "component",
+        "create",
+        "cli",
+        "generate",
+        "configurable",
+        "gen",
+        "scaffolding",
+        "make",
+        "tool",
+        "dev",
+        "build",
+        "reactcci",
+        "rcci"
+    ]
 }
