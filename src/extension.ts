@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
-import { checkPackageAndConfig, getConfig, selectComponentName, selectFiles, createCommand } from './helpers';
+import { getConfig, selectComponentName, selectFiles, createCommand } from './helpers';
+import { checkPackageAndConfig } from './init';
 import { runInTerminal } from './terminal';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	let create = vscode.commands.registerCommand('vs-rcci.create', async event => {
-		if (checkPackageAndConfig()) {
+		if (await checkPackageAndConfig()) {
 			const { config, template } = (await getConfig()) ?? {};
 			if (!config) {
 				return;
@@ -33,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let update = vscode.commands.registerCommand('vs-rcci.update', async event => {
-		if (checkPackageAndConfig()) {
+		if (await checkPackageAndConfig()) {
 			const { config, template } = await getConfig() ?? {};
 			if (!config) {
 				return;

@@ -11,28 +11,6 @@ export const getRoot = () => {
     return folder.uri.fsPath;
 };
 
-export const checkPackageAndConfig = (): boolean => {
-    const root = getRoot();
-    if (!root) {
-        vscode.window.showErrorMessage('Error: Unexpected error');
-        return false;
-    }
-
-    const isPackageExist = fs.existsSync(path.resolve(root, 'node_modules', 'reactcci'));
-    if (!isPackageExist) {
-        vscode.window.showErrorMessage('Error: reactcci package was not found');
-        return false;
-    }
-
-    const isConfigExists = fs.existsSync(path.resolve(root, 'rcci.config.js'));
-    if (!isConfigExists) {
-        vscode.window.showErrorMessage('Error: config file wasnt found (rcci.config.js)');
-        return false;
-    }
-
-    return true;
-};
-
 const readConfigFile = async (path: string): Promise<Config> => {
     const file = await fs.promises.readFile(path, { encoding: 'utf8' });
     let config;
