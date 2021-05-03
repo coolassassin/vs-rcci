@@ -3,12 +3,17 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Config, MultiTemplate, TemplateDescription } from './types';
 
+export const getProjectRoot = (): string | null => {
+    return vscode.workspace.getConfiguration('vs-rcci').get('root') as string ?? null;
+};
+
 export const getRoot = () => {
+    const projectRoot = getProjectRoot();
     const folder = vscode.workspace.workspaceFolders?.[0];
     if (!folder) {
         return;
     }
-    return folder.uri.fsPath;
+    return projectRoot ? path.resolve(folder.uri.fsPath, projectRoot) : folder.uri.fsPath;
 };
 
 const readConfigFile = async (path: string): Promise<Config> => {
@@ -172,10 +177,13 @@ type CreateCommandOprions = {
 
 export const createCommand = (options: CreateCommandOprions): string => {
     const command = ['npx rcci'];
-    for (const key of ['dest', 'name', 'type', 'files'] as (keyof CreateCommandOprions)[]) {
+    for (const key of ['dest', 'name', 'files'] as (keyof CreateCommandOprions)[]) {
         if (options[key]) {
             command.push(`--${key} "${options[key]}"`);
         }
+    }
+    if (options.type) {
+        command.push(`-t "${options.type}"`);
     }
     if (options.update) {
         command.push('--update');
