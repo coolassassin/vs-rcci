@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 			runInTerminal(createCommand({
 				dest: event.fsPath,
 				name: componentName,
-				type: template,
+				template,
 				files: filesToCreate,
 				noSearch: true,
 				skipLastStep: true
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			runInTerminal(createCommand({
 				dest: event.fsPath,
-				type: template,
+				template,
 				files: filesToCreate,
 				update: true,
 				noSearch: true,

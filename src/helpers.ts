@@ -168,7 +168,7 @@ export const selectFiles = async (config: Config, update = false): Promise<strin
 type CreateCommandOprions = {
     dest?: string;
     name?: string;
-    type?: string;
+    template?: string;
     files?: string;
     noSearch?: boolean;
     skipLastStep?: boolean;
@@ -177,13 +177,10 @@ type CreateCommandOprions = {
 
 export const createCommand = (options: CreateCommandOprions): string => {
     const command = ['npx rcci'];
-    for (const key of ['dest', 'name', 'files'] as (keyof CreateCommandOprions)[]) {
+    for (const key of ['dest', 'name', 'files', 'template'] as (keyof CreateCommandOprions)[]) {
         if (options[key]) {
             command.push(`--${key} "${options[key]}"`);
         }
-    }
-    if (options.type) {
-        command.push(`-t "${options.type}"`);
     }
     if (options.update) {
         command.push('--update');
