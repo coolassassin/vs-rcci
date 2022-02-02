@@ -10,6 +10,8 @@
 		"vscode": "^1.53.0"
 	},
 	"categories": [
+		"Extension Packs",
+		"Snippets",
 		"Other"
 	],
 	"activationEvents": [
@@ -94,9 +96,10 @@
 	},
 	"keywords": [
         "react",
+		"react-native",
         "component",
         "create",
-        "cli",
+        "generator",
         "generate",
         "configurable",
         "gen",
@@ -104,8 +107,8 @@
         "make",
         "tool",
         "dev",
-        "build",
-        "reactcci",
-        "rcci"
+		"js",
+		"javascript",
+		"typescript"
     ]
 }

@@ -36,7 +36,7 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
             { placeHolder: 'Do you want to config package?' }
         ) ?? { label: 'No' };
         if (res.label === 'Yes') {
-            await runInTerminal('npx rcci');
+            await runInTerminal('npx rcci --nfc');
         }
         return false;
     }

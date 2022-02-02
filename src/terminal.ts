@@ -12,15 +12,17 @@ export const runInTerminal = async (command: string) => {
         firstRun = true;
     }
 
+    terminal.show();
     if (firstRun) {
         terminal.sendText(`cd ${getRoot()}`, true);
     } else {
-        terminal.sendText("\u0003Y\u000D", true);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        terminal.sendText("\u0003", true);
+        vscode.commands.executeCommand('workbench.action.terminal.clear');
+        await new Promise(resolve => setTimeout(resolve, 200));
         vscode.commands.executeCommand('workbench.action.terminal.clear');
     }
 
     firstRun = false;
     terminal.sendText(command);
-    terminal.show();
 };
