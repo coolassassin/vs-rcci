@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { getRoot } from './helpers';
 import { runInTerminal } from './terminal';
+import { findPackage } from './findPackage';
 
 export const checkPackageAndConfig = async (): Promise<boolean> => {
     const root = getRoot();
@@ -11,13 +12,13 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
         return false;
     }
 
-    const isPackageExist = fs.existsSync(path.resolve(root, 'node_modules', 'reactcci'));
+    const isPackageExist = await findPackage(root);
     if (!isPackageExist) {
         vscode.window.showErrorMessage('Error: reactcci package was not found');
-        const res = await vscode.window.showQuickPick(
-            [{ label: 'Yes', description: 'Add reactcci package into your project' }, { label: 'No' }], 
+        const res = (await vscode.window.showQuickPick(
+            [{ label: 'Yes', description: 'Add reactcci package into your project' }, { label: 'No' }],
             { placeHolder: 'Do you want to install package?' }
-        ) ?? { label: 'No' };
+        )) ?? { label: 'No' };
         if (res.label === 'Yes') {
             const isYarn = fs.existsSync(path.resolve(root, 'yarn.lock'));
             await runInTerminal(isYarn ? 'yarn add -D reactcci' : 'npm i -D reactcci');
@@ -31,10 +32,10 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
     const isConfigExists = fs.existsSync(path.resolve(root, 'rcci.config.js'));
     if (!isConfigExists) {
         vscode.window.showErrorMessage('Error: config file wasnt found (rcci.config.js)');
-        const res = await vscode.window.showQuickPick(
-            [{ label: 'Yes', description: 'Start reactcci package configuration?' }, { label: 'No' }], 
+        const res = (await vscode.window.showQuickPick(
+            [{ label: 'Yes', description: 'Start reactcci package configuration?' }, { label: 'No' }],
             { placeHolder: 'Do you want to config package?' }
-        ) ?? { label: 'No' };
+        )) ?? { label: 'No' };
         if (res.label === 'Yes') {
             await runInTerminal('npx rcci --nfc');
         }

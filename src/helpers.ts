@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Config, MultiTemplate, TemplateDescription } from './types';
 
 export const getProjectRoot = (): string | null => {
-    return vscode.workspace.getConfiguration('vs-rcci').get('root') as string ?? null;
+    return (vscode.workspace.getConfiguration('vs-rcci').get('root') as string) ?? null;
 };
 
 export const getRoot = () => {
@@ -18,6 +18,7 @@ export const getRoot = () => {
 
 const readConfigFile = async (path: string): Promise<Config> => {
     const file = await fs.promises.readFile(path, { encoding: 'utf8' });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let config;
     return eval(file.replace('module.exports =', 'config ='));
 };
@@ -26,18 +27,16 @@ export const applyTemplate = (config: Config, template: string): void => {
     if (!Array.isArray(config.templates)) {
         return;
     }
-    const tmpIndex = config.templates.findIndex(tmp => tmp.name === template);
+    const tmpIndex = config.templates.findIndex((tmp) => tmp.name === template);
     if (config.templates[tmpIndex].folderPath) {
         config.folderPath = config.templates[tmpIndex].folderPath as string;
     }
     config.templates = config.templates[tmpIndex].files;
 };
 
-export const getConfig = async (): Promise<{ config: Config, template?: string } | undefined> => {
+export const getConfig = async (): Promise<{ config: Config; template?: string } | undefined> => {
     const root = getRoot() as string;
-    let config: Config = await readConfigFile(path.resolve(root, 'node_modules', 'reactcci', 'defaultConfig.js'));
-    const customConfig: Config = await readConfigFile(path.resolve(root, 'rcci.config.js'));
-    config = { ...config, ...customConfig, placeholders: { ...config.placeholders, ...customConfig.placeholders } };
+    const config: Config = await readConfigFile(path.resolve(root, 'rcci.config.js'));
 
     let template;
     if (Array.isArray(config.templates)) {
@@ -58,10 +57,10 @@ export const getConfig = async (): Promise<{ config: Config, template?: string }
 };
 
 export const selectTemplate = (config: Config): Promise<string | undefined> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const templateSelection = vscode.window.createQuickPick();
-        templateSelection.items = (config.templates as MultiTemplate).map(tmp => ({ label: tmp.name }));
-        templateSelection.onDidChangeSelection(items => {
+        templateSelection.items = (config.templates as MultiTemplate).map((tmp) => ({ label: tmp.name }));
+        templateSelection.onDidChangeSelection((items) => {
             const selectedTemplate = items[0].label;
             resolve(selectedTemplate);
             templateSelection.hide();
@@ -74,7 +73,7 @@ export const selectTemplate = (config: Config): Promise<string | undefined> => {
 };
 
 export const selectComponentName = (): Promise<string | undefined> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const componentName = vscode.window.createInputBox();
         componentName.placeholder = 'Enter component name or names divided by space';
         componentName.show();
@@ -92,33 +91,37 @@ export const selectComponentName = (): Promise<string | undefined> => {
     });
 };
 
-export const selectFileTypes = async (config: Config, files: string[], checkRequired: boolean): Promise<string[] | undefined> => {
+export const selectFileTypes = async (
+    config: Config,
+    files: string[],
+    checkRequired: boolean
+): Promise<string[] | undefined> => {
     const entries: [string, TemplateDescription][] = Object.entries(config.templates);
     const filesWithTypes = entries.filter(([name, options]) => {
-        return Array.isArray(options.file) && (checkRequired && !options.optional || files.includes(name));
+        return Array.isArray(options.file) && ((checkRequired && !options.optional) || files.includes(name));
     });
-    
+
     if (filesWithTypes.length === 0) {
         return files;
     }
 
-    let updatedFiles = [...files];
+    const updatedFiles = [...files];
 
     for (const [fileName, fileOptions] of filesWithTypes) {
         if (Array.isArray(fileOptions.file)) {
-            const types = fileOptions.file.map(t => ({
+            const types = fileOptions.file.map((t) => ({
                 label: t.description,
                 description: t.name
             }));
-            const type = (await vscode.window.showQuickPick(types));
+            const type = await vscode.window.showQuickPick(types);
 
             if (!type) {
                 return;
             }
 
-            const typeIndex = fileOptions.file.findIndex(t => t.name === type.description);
+            const typeIndex = fileOptions.file.findIndex((t) => t.name === type.description);
             if (updatedFiles.includes(fileName)) {
-                updatedFiles.map(f => {
+                updatedFiles.map((f) => {
                     if (fileName !== f) {
                         return f;
                     }
@@ -147,16 +150,20 @@ export const selectFiles = async (config: Config, update = false): Promise<strin
         return 'no';
     }
 
-    const items = (await vscode.window.showQuickPick(files, {
+    const items = await vscode.window.showQuickPick(files, {
         canPickMany: true,
-        placeHolder: update ? 'replace if already exists' : '',
-    }));
+        placeHolder: update ? 'replace if already exists' : ''
+    });
 
-    if (!items || items.length === 0 && update) {
+    if (!items || (items.length === 0 && update)) {
         return;
     }
 
-    const selectedFiles = await selectFileTypes(config, items.map(item => item.label), !update);
+    const selectedFiles = await selectFileTypes(
+        config,
+        items.map((item) => item.label),
+        !update
+    );
 
     if (!selectedFiles) {
         return;
@@ -165,7 +172,7 @@ export const selectFiles = async (config: Config, update = false): Promise<strin
     return selectedFiles.length === 0 ? 'no' : selectedFiles.join(' ');
 };
 
-type CreateCommandOprions = {
+type CreateCommandOptions = {
     dest?: string;
     name?: string;
     template?: string;
@@ -175,9 +182,9 @@ type CreateCommandOprions = {
     update?: boolean;
 };
 
-export const createCommand = (options: CreateCommandOprions): string => {
+export const createCommand = (options: CreateCommandOptions): string => {
     const command = ['npx rcci'];
-    for (const key of ['dest', 'name', 'files', 'template'] as (keyof CreateCommandOprions)[]) {
+    for (const key of ['dest', 'name', 'files', 'template'] as (keyof CreateCommandOptions)[]) {
         if (options[key]) {
             command.push(`--${key} "${options[key]}"`);
         }

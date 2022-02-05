@@ -5,7 +5,6 @@ type FileOption = {
 
 export type TemplateDescription = { name: string; file?: string | FileOption[]; optional?: boolean; default?: boolean };
 
-
 type TemplateDescriptionObject = {
     [key in string]: TemplateDescription;
 };

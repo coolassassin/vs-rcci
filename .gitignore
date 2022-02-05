@@ -1,8 +1,9 @@
 .idea
 .vscode
+.yarn
+/.pnp.*
 out
 dist
 node_modules
 .vscode-test/
 *.vsix
-

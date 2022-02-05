@@ -6,7 +6,7 @@ let id: vscode.Terminal['processId'];
 let terminal: vscode.Terminal | null = null;
 
 export const runInTerminal = async (command: string) => {
-    if (!terminal || !vscode.window.terminals.some(t => t.processId === id)) {
+    if (!terminal || !vscode.window.terminals.some((t) => t.processId === id)) {
         terminal = vscode.window.createTerminal('reactcci');
         id = terminal.processId;
         firstRun = true;
@@ -16,10 +16,9 @@ export const runInTerminal = async (command: string) => {
     if (firstRun) {
         terminal.sendText(`cd ${getRoot()}`, true);
     } else {
-        
-        terminal.sendText("\u0003", true);
+        terminal.sendText('\u0003', true);
         vscode.commands.executeCommand('workbench.action.terminal.clear');
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         vscode.commands.executeCommand('workbench.action.terminal.clear');
     }
 

@@ -4,59 +4,63 @@ import { checkPackageAndConfig } from './init';
 import { runInTerminal } from './terminal';
 
 export function activate(context: vscode.ExtensionContext) {
+    const create = vscode.commands.registerCommand('vs-rcci.create', async (event) => {
+        if (await checkPackageAndConfig()) {
+            const { config, template } = (await getConfig()) ?? {};
+            if (!config) {
+                return;
+            }
 
-	let create = vscode.commands.registerCommand('vs-rcci.create', async event => {
-		if (await checkPackageAndConfig()) {
-			const { config, template } = (await getConfig()) ?? {};
-			if (!config) {
-				return;
-			}
+            const componentName = await selectComponentName();
+            if (!componentName) {
+                return;
+            }
 
-			const componentName = await selectComponentName();
-			if (!componentName) {
-				return;
-			}
+            const filesToCreate = await selectFiles(config);
+            if (!filesToCreate) {
+                return;
+            }
 
-			const filesToCreate = await selectFiles(config);
-			if (!filesToCreate) {
-				return;
-			}
+            runInTerminal(
+                createCommand({
+                    dest: event.fsPath,
+                    name: componentName,
+                    template,
+                    files: filesToCreate,
+                    noSearch: true,
+                    skipLastStep: true
+                })
+            );
+        }
+    });
 
-			runInTerminal(createCommand({
-				dest: event.fsPath,
-				name: componentName,
-				template,
-				files: filesToCreate,
-				noSearch: true,
-				skipLastStep: true
-			}));
-		}
-	});
+    const update = vscode.commands.registerCommand('vs-rcci.update', async (event) => {
+        if (await checkPackageAndConfig()) {
+            const { config, template } = (await getConfig()) ?? {};
+            if (!config) {
+                return;
+            }
 
-	let update = vscode.commands.registerCommand('vs-rcci.update', async event => {
-		if (await checkPackageAndConfig()) {
-			const { config, template } = await getConfig() ?? {};
-			if (!config) {
-				return;
-			}
+            const filesToCreate = await selectFiles(config, true);
+            if (!filesToCreate || filesToCreate === 'no') {
+                return;
+            }
 
-			const filesToCreate = await selectFiles(config, true);
-			if (!filesToCreate || filesToCreate === 'no') {
-				return;
-			}
+            runInTerminal(
+                createCommand({
+                    dest: event.fsPath,
+                    template,
+                    files: filesToCreate,
+                    update: true,
+                    noSearch: true,
+                    skipLastStep: true
+                })
+            );
+        }
+    });
 
-			runInTerminal(createCommand({
-				dest: event.fsPath,
-				template,
-				files: filesToCreate,
-				update: true,
-				noSearch: true,
-				skipLastStep: true
-			}));
-		}
-	});
-
-	context.subscriptions.push(create, update);
+    context.subscriptions.push(create, update);
 }
 
-export function deactivate() { }
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function deactivate() {}
