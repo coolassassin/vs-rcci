@@ -4,7 +4,7 @@
   "description": "⚛️⭐ Interactive and customizable tool to create and update react component",
   "publisher": "KamenskikhDmitriy",
   "repository": "https://github.com/coolassassin/vs-rcci",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.53.0"
