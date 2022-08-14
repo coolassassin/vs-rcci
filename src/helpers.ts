@@ -2,22 +2,24 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Config, MultiTemplate, TemplateDescription } from './types';
+import { getComponentFileName } from './getComponentFileName';
+import { QuickPickItem } from 'vscode';
 
 export const getProjectRoot = (): string | null => {
     return (vscode.workspace.getConfiguration('vs-rcci').get('root') as string) ?? null;
 };
 
-export const getRoot = () => {
+export const getRoot = (): string | null => {
     const projectRoot = getProjectRoot();
     const folder = vscode.workspace.workspaceFolders?.[0];
     if (!folder) {
-        return;
+        return null;
     }
     return projectRoot ? path.resolve(folder.uri.fsPath, projectRoot) : folder.uri.fsPath;
 };
 
-const readConfigFile = async (path: string): Promise<Config> => {
-    const file = await fs.promises.readFile(path, { encoding: 'utf8' });
+const readConfigFile = async (configPath: string): Promise<Config> => {
+    const file = await fs.promises.readFile(configPath, { encoding: 'utf8' });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let config;
     return eval(file.replace('module.exports =', 'config ='));
@@ -35,7 +37,10 @@ export const applyTemplate = (config: Config, template: string): void => {
 };
 
 export const getConfig = async (): Promise<{ config: Config; template?: string } | undefined> => {
-    const root = getRoot() as string;
+    const root = getRoot();
+    if (root === null) {
+        return;
+    }
     const config: Config = await readConfigFile(path.resolve(root, 'rcci.config.js'));
 
     let template;
@@ -136,15 +141,23 @@ export const selectFileTypes = async (
     return updatedFiles;
 };
 
-export const selectFiles = async (config: Config, update = false): Promise<string | undefined> => {
-    const entries: [string, TemplateDescription][] = Object.entries(config.templates);
+export const selectFiles = async (folderPath: string, componentName: string, config: Config, update = false): Promise<string | undefined> => {
+    const templates: [string, TemplateDescription][] = Object.entries(config.templates);
+    
     let files: vscode.QuickPickItem[] = [];
-    files = entries
-        .filter(([_, o]) => update || o.optional)
-        .map(([name, options]: [string, TemplateDescription]) => ({
-            label: name,
-            picked: options.optional && (options.default ?? true)
-        }));
+    files = templates
+        .filter(([, o]) => update || o.optional)
+        .map(([name, options]: [string, TemplateDescription]): QuickPickItem => {
+            const filePrefix = getComponentFileName(componentName, config.processFileAndFolderName ?? 'PascalCase');
+            const fileName = options.name.replace(/\[name]/g, filePrefix);
+            const isFileExists = update && fs.existsSync(path.resolve(folderPath, fileName));
+            return ({
+                label: name,
+                description: `/${fileName}${isFileExists ? ' (Replace)': ''}`,
+                picked: options.optional && (options.default ?? true) && !isFileExists
+            });
+        });
+    
 
     if (!files.length) {
         return 'no';

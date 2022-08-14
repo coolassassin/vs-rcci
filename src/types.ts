@@ -15,7 +15,8 @@ export type MultiTemplate = {
     files: TemplateDescriptionObject;
 }[];
 
-type ProcessFileAndFolderName = (name?: string, parts?: string[], isFolder?: boolean) => string;
+export type TypingCases = 'camelCase' | 'PascalCase' | 'snake_case' | 'dash-case';
+export type ProcessFileAndFolderName = ((name?: string, parts?: string[], isFolder?: boolean) => string) | TypingCases;
 
 type AfterCreationCommand = {
     extensions?: string[];

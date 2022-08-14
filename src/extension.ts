@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const filesToCreate = await selectFiles(config);
+            const filesToCreate = await selectFiles(event.fsPath, componentName, config);
             if (!filesToCreate) {
                 return;
             }
@@ -41,16 +41,18 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const filesToCreate = await selectFiles(config, true);
-            if (!filesToCreate || filesToCreate === 'no') {
+            const componentName = event.fsPath.split('/').pop();
+            
+            const filesToUpdate = await selectFiles(event.fsPath, componentName, config, true);
+            if (!filesToUpdate || filesToUpdate === 'no') {
                 return;
             }
-
+ 
             runInTerminal(
                 createCommand({
                     dest: event.fsPath,
                     template,
-                    files: filesToCreate,
+                    files: filesToUpdate,
                     update: true,
                     noSearch: true,
                     skipLastStep: true
