@@ -18,7 +18,7 @@ const findClosestWithFiles = async (from: string, files: Array<string>): Promise
 };
 
 export const findPackage = async (searchPath: string): Promise<boolean> => {
-    const closestLock = await findClosestWithFiles(searchPath, ['yarn.lock', 'package-lock.json']);
+    const closestLock = await findClosestWithFiles(searchPath, ['yarn.lock', 'package-lock.json', 'pnpm-lock.yaml']);
 
     if (closestLock === null) {
         return false;

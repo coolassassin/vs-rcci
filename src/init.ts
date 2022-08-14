@@ -21,10 +21,10 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
         )) ?? { label: 'No' };
         if (res.label === 'Yes') {
             const isYarn = fs.existsSync(path.resolve(root, 'yarn.lock'));
-            await runInTerminal(isYarn ? 'yarn add -D reactcci' : 'npm i -D reactcci');
-            vscode.window.showInformationMessage(
-                `Execute "${isYarn ? 'yarn run rcci' : 'npx rcci'}" after installation to configure package`
-            );
+            setTimeout(() => {
+                vscode.window.showInformationMessage('Use arrows and enter to select options');
+            }, 5000);
+            await runInTerminal(isYarn ? 'yarn add -D reactcci && yarn run rcci --nfc' : 'npm i -D reactcci && npx rcci --nfc');
         }
         return false;
     }
@@ -37,6 +37,7 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
             { placeHolder: 'Do you want to config package?' }
         )) ?? { label: 'No' };
         if (res.label === 'Yes') {
+            vscode.window.showInformationMessage('Use arrows and enter to select options');
             await runInTerminal('npx rcci --nfc');
         }
         return false;
