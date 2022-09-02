@@ -11,7 +11,7 @@ export const runInTerminal = async (command: string) => {
         id = terminal.processId;
         firstRun = true;
     }
-
+    
     terminal.show();
     if (firstRun) {
         terminal.sendText(`cd ${getRoot()}`, true);
@@ -23,5 +23,15 @@ export const runInTerminal = async (command: string) => {
     }
 
     firstRun = false;
+    const isPowershell = vscode.env.shell.includes('powershell');
+    if (isPowershell) {
+        const powerShellCommand = command.split('&&').map(cmd => cmd.trim()).join('; ');
+        // command1 && command2 -> command1; command2
+        terminal.sendText('clear', true);
+        terminal.sendText(powerShellCommand);
+        
+        return;
+    }
+
     terminal.sendText(command);
 };

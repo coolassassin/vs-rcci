@@ -40,8 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
             if (!config) {
                 return;
             }
-
-            const componentName = event.fsPath.split('/').pop();
+            
+            const componentName = event.fsPath.replace(/[\\/]+/g, '/').split('/').pop();
             
             const filesToUpdate = await selectFiles(event.fsPath, componentName, config, true);
             if (!filesToUpdate || filesToUpdate === 'no') {

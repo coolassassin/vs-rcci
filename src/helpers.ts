@@ -153,7 +153,7 @@ export const selectFiles = async (folderPath: string, componentName: string, con
             const isFileExists = update && fs.existsSync(path.resolve(folderPath, fileName));
             return ({
                 label: name,
-                description: `/${fileName}${isFileExists ? ' (Replace)': ''}`,
+                description: `${fileName}${isFileExists ? ' (Replace)': ''}`,
                 picked: options.optional && (options.default ?? true) && !isFileExists
             });
         });
