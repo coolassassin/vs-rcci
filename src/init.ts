@@ -24,7 +24,9 @@ export const checkPackageAndConfig = async (): Promise<boolean> => {
             setTimeout(() => {
                 vscode.window.showInformationMessage('Use arrows and Enter key on the keyboard to select options');
             }, 5000);
-            await runInTerminal(isYarn ? 'yarn add -D reactcci && yarn run rcci --nfc' : 'npm i -D reactcci && npx rcci --nfc');
+            await runInTerminal(
+                isYarn ? 'yarn add -D reactcci && yarn run rcci --nfc' : 'npm i -D reactcci && npx rcci --nfc'
+            );
         }
         return false;
     }

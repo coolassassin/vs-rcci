@@ -9,6 +9,10 @@ export const getProjectRoot = (): string | null => {
     return (vscode.workspace.getConfiguration('vs-rcci').get('root') as string) ?? null;
 };
 
+export const getProjectSilentMode = (): boolean => {
+    return !!(vscode.workspace.getConfiguration('vs-rcci').get('silent') ?? false);
+};
+
 export const getRoot = (): string | null => {
     const projectRoot = getProjectRoot();
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -141,9 +145,14 @@ export const selectFileTypes = async (
     return updatedFiles;
 };
 
-export const selectFiles = async (folderPath: string, componentName: string, config: Config, update = false): Promise<string | undefined> => {
+export const selectFiles = async (
+    folderPath: string,
+    componentName: string,
+    config: Config,
+    update = false
+): Promise<string | undefined> => {
     const templates: [string, TemplateDescription][] = Object.entries(config.templates);
-    
+
     let files: vscode.QuickPickItem[] = [];
     files = templates
         .filter(([, o]) => update || o.optional)
@@ -151,13 +160,12 @@ export const selectFiles = async (folderPath: string, componentName: string, con
             const filePrefix = getComponentFileName(componentName, config.processFileAndFolderName ?? 'PascalCase');
             const fileName = options.name.replace(/\[name]/g, filePrefix);
             const isFileExists = update && fs.existsSync(path.resolve(folderPath, fileName));
-            return ({
+            return {
                 label: name,
-                description: `${fileName}${isFileExists ? ' (Replace)': ''}`,
+                description: `${fileName}${isFileExists ? ' (Replace)' : ''}`,
                 picked: options.optional && (options.default ?? true) && !isFileExists
-            });
+            };
         });
-    
 
     if (!files.length) {
         return 'no';

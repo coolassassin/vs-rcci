@@ -29,6 +29,7 @@ export type Config = {
     folderPath: string | string[];
     templatesFolder: string;
     templates: TemplateDescriptionObject | MultiTemplate;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     placeholders: { [key in string]: (data: any) => string };
     processFileAndFolderName?: ProcessFileAndFolderName;
     afterCreation?: {

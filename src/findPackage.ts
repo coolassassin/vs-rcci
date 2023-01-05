@@ -5,7 +5,7 @@ import * as path from 'path';
 const packageName = 'reactcci';
 
 const findClosestWithFiles = async (from: string, files: Array<string>): Promise<string | null> => {
-    const check = files.some(file => fs.existsSync(path.resolve(from, file)));
+    const check = files.some((file) => fs.existsSync(path.resolve(from, file)));
     if (check) {
         return from;
     }

@@ -1,4 +1,4 @@
-import {TypingCases, ProcessFileAndFolderName} from './types';
+import { TypingCases, ProcessFileAndFolderName } from './types';
 
 const capitalizeName = (value: string) => value.replace(/^./g, value[0].toUpperCase());
 

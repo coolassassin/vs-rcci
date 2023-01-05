@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getRoot } from './helpers';
+import { getProjectSilentMode, getRoot } from './helpers';
 
 let firstRun = true;
 let id: vscode.Terminal['processId'];
@@ -11,8 +11,11 @@ export const runInTerminal = async (command: string) => {
         id = terminal.processId;
         firstRun = true;
     }
-    
-    terminal.show();
+
+    if (!getProjectSilentMode()) {
+        terminal.show();
+    }
+
     if (firstRun) {
         terminal.sendText(`cd ${getRoot()}`, true);
     } else {
@@ -25,11 +28,14 @@ export const runInTerminal = async (command: string) => {
     firstRun = false;
     const isPowershell = vscode.env.shell.includes('powershell');
     if (isPowershell) {
-        const powerShellCommand = command.split('&&').map(cmd => cmd.trim()).join('; ');
+        const powerShellCommand = command
+            .split('&&')
+            .map((cmd) => cmd.trim())
+            .join('; ');
         // command1 && command2 -> command1; command2
         terminal.sendText('clear', true);
         terminal.sendText(powerShellCommand);
-        
+
         return;
     }
 
